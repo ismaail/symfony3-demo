@@ -51,7 +51,7 @@ class Language
      *
      * @param string $code
      *
-     * @return language
+     * @return Language
      */
     public function setCode($code)
     {
@@ -75,7 +75,7 @@ class Language
      *
      * @param string $name
      *
-     * @return language
+     * @return Language
      */
     public function setName($name)
     {
