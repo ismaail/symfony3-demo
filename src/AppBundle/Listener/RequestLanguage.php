@@ -47,6 +47,7 @@ class RequestLanguage
         }
 
         $this->twig->addGlobal('languages', $this->getLanguages());
+        $this->twig->addGlobal('default_language', $this->getDefaultLanguage());
     }
 
     /**
@@ -55,6 +56,14 @@ class RequestLanguage
     protected function getLanguages()
     {
         return $this->entityManager->getRepository('AppBundle:Language')->findAll();
+    }
+
+    /**
+     * @return \AppBundle\Entity\Language
+     */
+    protected function getDefaultLanguage()
+    {
+        return $this->entityManager->getRepository('AppBundle:Language')->findDefault();
     }
 
     /**
