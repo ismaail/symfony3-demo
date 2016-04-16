@@ -35,6 +35,12 @@ class Language
      */
     protected $name;
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="is_default", type="boolean", nullable=true, options={"default":false})
+     */
+    protected $isDefault;
 
     /**
      * Get id
@@ -92,6 +98,26 @@ class Language
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsDefault()
+    {
+        return $this->isDefault;
+    }
+
+    /**
+     * @param bool $isDefault
+     *
+     * @return Language
+     */
+    public function setIsDefault($isDefault)
+    {
+        $this->isDefault = $isDefault;
+
+        return $this;
     }
 
     /**
