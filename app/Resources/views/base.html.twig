@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>{% block title %}{% endblock %} - Symfony 3 Demo</title>
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+    </head>
+    <body>
+        {% if languages is defined and languages is not empty %}
+        <div>
+            <label for="page-lang">Language:</label>
+            <select name="lang" id="page-lang">
+            {% for language in languages %}
+                <option value="{{ language.code }}">{{ language.name }}</option>
+            {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+        {% block body %}{% endblock %}
+        {% block javascripts %}{% endblock %}
+    </body>
+</html>
