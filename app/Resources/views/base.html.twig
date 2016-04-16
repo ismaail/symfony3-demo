@@ -4,19 +4,13 @@
         <meta charset="UTF-8" />
         <title>{% block title %}{% endblock %} - Symfony 3 Demo</title>
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+        <link rel="stylesheet" href="{{ asset('vendor/bootstrap-css/css/bootstrap.min.css') }}">
     </head>
     <body>
-        {% if languages is defined and languages is not empty %}
-        <div>
-            <label for="page-lang">Language:</label>
-            <select name="lang" id="page-lang">
-            {% for language in languages %}
-                <option value="{{ language.code }}">{{ language.name }}</option>
-            {% endfor %}
-            </select>
+        {% include 'header.html.twig' %}
+        <div class="container">
+            {% block body %}{% endblock %}
         </div>
-        {% endif %}
-        {% block body %}{% endblock %}
         {% block javascripts %}{% endblock %}
     </body>
 </html>

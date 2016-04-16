@@ -1,0 +1,11 @@
+{% if languages is defined and languages is not empty %}
+    <div class="container-fluid">
+        <div class="col-sm-2 pull-right">
+            <select name="lang" id="page-lang" class="form-control">
+            {% for language in languages %}
+                <option value="{{ language.code }}">{{ language.name }}</option>
+            {% endfor %}
+            </select>
+        </div>
+    </div>
+{% endif %}
