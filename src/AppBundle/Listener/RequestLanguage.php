@@ -46,15 +46,24 @@ class RequestLanguage
             return;
         }
 
-        $this->twig->addGlobal('languages', $this->findLanguages());
+        $this->twig->addGlobal('languages', $this->getLanguages());
+        $this->twig->addGlobal('default_language', $this->getDefaultLanguage());
     }
 
     /**
      * @return \AppBundle\Entity\Language[]
      */
-    protected function findLanguages()
+    protected function getLanguages()
     {
         return $this->entityManager->getRepository('AppBundle:Language')->findAll();
+    }
+
+    /**
+     * @return \AppBundle\Entity\Language
+     */
+    protected function getDefaultLanguage()
+    {
+        return $this->entityManager->getRepository('AppBundle:Language')->findDefault();
     }
 
     /**

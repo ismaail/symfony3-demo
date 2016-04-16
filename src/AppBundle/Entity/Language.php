@@ -19,22 +19,28 @@ class Language
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string
      *
      * @ORM\Column(name="code", type="string", length=2, unique=true, options={"fixed":true})
      */
-    private $code;
+    protected $code;
 
     /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255)
      */
-    private $name;
+    protected $name;
 
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="is_default", type="boolean", nullable=true, options={"default":false})
+     */
+    protected $isDefault = false;
 
     /**
      * Get id
@@ -51,7 +57,7 @@ class Language
      *
      * @param string $code
      *
-     * @return language
+     * @return Language
      */
     public function setCode($code)
     {
@@ -75,7 +81,7 @@ class Language
      *
      * @param string $name
      *
-     * @return language
+     * @return Language
      */
     public function setName($name)
     {
@@ -92,6 +98,26 @@ class Language
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsDefault()
+    {
+        return $this->isDefault;
+    }
+
+    /**
+     * @param bool $isDefault
+     *
+     * @return Language
+     */
+    public function setIsDefault($isDefault)
+    {
+        $this->isDefault = $isDefault;
+
+        return $this;
     }
 
     /**
