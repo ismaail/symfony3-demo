@@ -40,7 +40,7 @@ class Language
      *
      * @ORM\Column(name="is_default", type="boolean", nullable=true, options={"default":false})
      */
-    protected $isDefault;
+    protected $isDefault = false;
 
     /**
      * Get id
