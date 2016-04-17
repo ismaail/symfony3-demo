@@ -49,7 +49,9 @@
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::installRequirementsFile",
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::prepareDeploymentTarget"
         ],
-        "test": "vendor/bin/phpunit --colors=always"
+        "test": "vendor/bin/phpunit --colors=always",
+        "test-failing": "vendor/bin/phpunit --colors=always --group=failing",
+        "test-report": "vendor/bin/phpunit --coverage-html var/logs/tests"
     },
     "config": {
         "platform": {
