@@ -1,3 +1,7 @@
+base:
+    path: /
+    methods: [GET]
+
 app:
     resource: "@AppBundle/config/routing.yml"
-    prefix: /
+    prefix: /{_locale}
