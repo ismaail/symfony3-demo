@@ -9,7 +9,6 @@ use Tests\Traits\ServicesMocker;
  * Class DefaultControllerTest
  * @package Tests\AppBundle\Controller
  *
- * @mixin \PHPUnit_Framework_TestCase
  * @SuppressWarnings(PHPMD.CamelCaseMethodName)
  * @codingStandardsIgnoreFile
  */
@@ -34,11 +33,35 @@ class DefaultControllerTest extends WebTestCase
      */
     public function it_says_welcome_for_home_page()
     {
-        $this->mockLanguageListenerService();
+        $requestMock = $this->mockLanguageListenerService(['onKernelRequest']);
 
-        $crawler = $this->client->request('GET', '/');
+        $requestMock
+            ->expects($this->atLeastOnce())
+            ->method('onKernelRequest')
+            ->willReturn([])
+        ;
+
+        $crawler = $this->client->request('GET', '/en/');
 
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
-        $this->assertContains('Welcome!', $crawler->filter('h1')->text());
+        $this->assertContains('welcome', $crawler->filter('h1')->text());
+    }
+
+    /**
+     * @test
+     */
+    public function it_redirect_base_route_to_home_page_with_default_language()
+    {
+        $requestMock = $this->mockLanguageListenerService();
+
+        $requestMock->setEntityManager($this->mockDefaultLanguage('ru', 'Russian'));
+
+        $this->client->request('GET', '/');
+
+        $this->assertEquals(302, $this->client->getResponse()->getStatusCode());
+
+        $this->client->followRedirect();
+
+        $this->assertEquals('http://localhost/ru/', $this->client->getHistory()->current()->getUri());
     }
 }
