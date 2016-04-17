@@ -2,6 +2,11 @@
 
 namespace Tests\Traits;
 
+use AppBundle\Repository\LanguageRepository;
+use AppBundle\Listener\RequestLanguage;
+use Doctrine\ORM\EntityManager;
+use AppBundle\Entity\Language;
+
 /**
  * Class ServicesMocker
  * @package Tests\Traits
@@ -11,25 +16,65 @@ namespace Tests\Traits;
 trait ServicesMocker
 {
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\AppBundle\Listener\RequestLanguage
+     * @param array|null $methods
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|RequestLanguage
      */
-    public function mockLanguageListenerService()
+    public function mockLanguageListenerService(array $methods = null)
     {
         $mock = $this
-            ->getMockBuilder(\AppBundle\Listener\RequestLanguage::class)
+            ->getMockBuilder(RequestLanguage::class)
             ->disableOriginalConstructor()
-            ->setMethods(['onKernelRequest'])
+            ->setMethods($methods)
             ->getMock()
-        ;
-
-        $mock
-            ->expects($this->atLeastOnce())
-            ->method('onKernelRequest')
-            ->willReturn([])
         ;
 
         $this->client->getContainer()->set('language_listener', $mock);
 
         return $mock;
+    }
+
+    /**
+     * @param string $code
+     * @param string $name
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|EntityManager
+     */
+    public function mockDefaultLanguage($code, $name)
+    {
+        $entityManagerMock = $this
+            ->getMockBuilder(EntityManager::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getRepository'])
+            ->getMock()
+        ;
+
+        $repositoryMock = $this
+            ->getMockBuilder(LanguageRepository::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['findDefault'])
+            ->getMock()
+        ;
+
+        $language = new Language();
+        $language
+            ->setCode($code)
+            ->setName($name)
+            ->setIsDefault(true)
+        ;
+
+        $repositoryMock
+            ->expects($this->once())
+            ->method('findDefault')
+            ->willReturn($language)
+        ;
+
+        $entityManagerMock
+            ->expects($this->once())
+            ->method('getRepository')
+            ->willReturn($repositoryMock)
+        ;
+
+        return $entityManagerMock;
     }
 }

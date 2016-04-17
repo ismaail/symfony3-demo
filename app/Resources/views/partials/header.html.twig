@@ -3,7 +3,7 @@
         <div class="col-sm-2 pull-right">
             <select name="lang" id="page-lang" class="form-control">
             {% for language in languages %}
-                <option {% if default_language.code == language.code %}selected="selected"{% endif %}  value="{{ language.code }}">{{ language.name }}</option>
+                <option {% if default_language == language.code %}selected="selected"{% endif %}  value="{{ language.code }}">{{ language.name }}</option>
             {% endfor %}
             </select>
         </div>
