@@ -75,6 +75,6 @@ class RequestLanguage
      */
     private function isSpecialRoute($request)
     {
-        return 0 === strpos($request->get('_route'), '_');
+        return (0 === strpos($request->get('_route'), '_')) || is_null($request->get('_route'));
     }
 }
