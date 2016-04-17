@@ -2,6 +2,8 @@
 
 namespace AppBundle\Listener;
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
+
 /**
  * Class RequestLanguage
  * @package AppBundle\Listener
@@ -46,8 +48,16 @@ class RequestLanguage
             return;
         }
 
-        $this->twig->addGlobal('languages', $this->getLanguages());
-        $this->twig->addGlobal('default_language', $this->getDefaultLanguage());
+        $defaultLanguage = $this->getDefaultLanguage();
+
+        if ($this->isBaseRoute($request, $event, $defaultLanguage->getCode())) {
+            return;
+        }
+
+        $languages = $this->getLanguages();
+
+        $this->twig->addGlobal('languages', $languages);
+        $this->twig->addGlobal('default_language', $request->get('_locale'));
     }
 
     /**
@@ -76,5 +86,25 @@ class RequestLanguage
     private function isSpecialRoute($request)
     {
         return (0 === strpos($request->get('_route'), '_')) || is_null($request->get('_route'));
+    }
+
+    /**
+     * If Base route, redirect to Home page.
+     *
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
+     * @param string $locale
+     *
+     * @return bool
+     */
+    private function isBaseRoute($request, $event, $locale)
+    {
+        if ('base' === $request->get('_route')) {
+            $event->setResponse(new RedirectResponse(sprintf('/%s/', $locale)));
+
+            return true;
+        }
+
+        return false;
     }
 }
