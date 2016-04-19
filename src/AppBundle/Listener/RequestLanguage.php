@@ -21,6 +21,11 @@ class RequestLanguage
     protected $twig;
 
     /**
+     * @var \AppBundle\Entity\Language[]
+     */
+    protected $languages;
+
+    /**
      * @param \Doctrine\ORM\EntityManager $entityManager
      */
     public function setEntityManager($entityManager)
@@ -48,16 +53,55 @@ class RequestLanguage
             return;
         }
 
-        $defaultLanguage = $this->getDefaultLanguage();
+        $locale = $this->setUpLocale($request);
 
-        if ($this->isBaseRoute($request, $event, $defaultLanguage->getCode())) {
+        if ($this->isBaseRoute($request, $event, $locale)) {
             return;
         }
 
-        $languages = $this->getLanguages();
+        $this->twig->addGlobal('languages', $this->getLanguages());
+        $this->twig->addGlobal('default_locale', $locale);
+    }
 
-        $this->twig->addGlobal('languages', $languages);
-        $this->twig->addGlobal('default_language', $request->get('_locale'));
+    /**
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     */
+    protected function setUpLocale($request)
+    {
+        $locale = $request->get('_locale');
+
+        if (! is_null($locale) && $locale === $request->getSession()->get('locale')) {
+            return $locale;
+        }
+
+        if (! $this->isValidLocale($locale)) {
+            return ($request->getSession()->has('locale'))
+                ? $request->getSession()->get('locale')
+                : $this->getDefaultLanguage()->getCode()
+            ;
+        }
+
+        $request->getSession()->set('locale', $locale);
+
+        return $locale;
+    }
+
+    /**
+     * @param string $locale
+     *
+     * @return bool
+     */
+    protected function isValidLocale($locale)
+    {
+        $langauges = $this->getLanguages();
+
+        $locales = [];
+
+        foreach ($langauges as $langauge) {
+            $locales[] = $langauge->getCode();
+        }
+
+        return in_array($locale, $locales);
     }
 
     /**
@@ -65,7 +109,11 @@ class RequestLanguage
      */
     protected function getLanguages()
     {
-        return $this->entityManager->getRepository('AppBundle:Language')->findAll();
+        if (is_null($this->languages)) {
+            $this->languages = $this->entityManager->getRepository('AppBundle:Language')->findAll();
+        }
+
+        return $this->languages;
     }
 
     /**
