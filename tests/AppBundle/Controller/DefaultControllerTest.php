@@ -50,6 +50,49 @@ class DefaultControllerTest extends WebTestCase
     /**
      * @test
      */
+    public function it_sets_default_locale_in_session()
+    {
+        $requestMock = $this->mockLanguageListenerService();
+
+        $requestMock->setEntityManager($this->mockDefaultLanguage('ru', 'Russian'));
+        $requestMock->setTwig($this->mockTwigAddGlobal());
+
+        // Invalid locale 'xx'
+        $this->client->request('GET', '/xx/');
+
+        $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
+
+        // Assert Session has the DefaultLocale value.
+        $this->assertTrue($this->client->getRequest()->getSession()->has('locale'), 'Session has no locale value');
+        $this->assertEquals('ru', $this->client->getRequest()->getSession()->get('locale'), 'Session has no locale value');
+    }
+
+    /**
+     * @test
+     */
+    public function it_uses_session_locale_value()
+    {
+        $requestMock = $this->mockLanguageListenerService();
+
+        $requestMock->setEntityManager($this->mockDefaultLanguage('ru', 'Russian'));
+        $requestMock->setTwig($this->mockTwigAddGlobal());
+
+        // Change the Session 'locale' value.
+        $this->client->getContainer()->get('session')->set('locale', 'fr');
+
+        // Invalid locale 'xx'
+        $this->client->request('GET', '/xx/');
+
+        $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
+
+        // Assert Session has the Session Locale value.
+        $this->assertTrue($this->client->getRequest()->getSession()->has('locale'), 'Session has no locale value');
+        $this->assertEquals('fr', $this->client->getRequest()->getSession()->get('locale'), 'Session has no locale value');
+    }
+
+    /**
+     * @test
+     */
     public function it_redirect_base_route_to_home_page_with_default_language()
     {
         $requestMock = $this->mockLanguageListenerService();
@@ -58,9 +101,17 @@ class DefaultControllerTest extends WebTestCase
 
         $this->client->request('GET', '/');
 
+        // Assert Session has the DefaultLocale value.
+        $this->assertTrue($this->client->getRequest()->getSession()->has('locale'), 'Session has locale value');
+        $this->assertEquals('ru', $this->client->getRequest()->getSession()->get('locale'), 'Session has no locale value');
+
         $this->assertEquals(302, $this->client->getResponse()->getStatusCode());
 
         $this->client->followRedirect();
+
+        // Assert Session has the DefaultLocale value.
+        $this->assertTrue($this->client->getRequest()->getSession()->has('locale'), 'Session has locale value');
+        $this->assertEquals('ru', $this->client->getRequest()->getSession()->get('locale'), 'Session has no locale value');
 
         $this->assertEquals('http://localhost/ru/', $this->client->getHistory()->current()->getUri());
     }

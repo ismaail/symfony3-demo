@@ -64,7 +64,7 @@ trait ServicesMocker
         ;
 
         $repositoryMock
-            ->expects($this->once())
+            ->expects($this->any())
             ->method('findDefault')
             ->willReturn($language)
         ;
@@ -76,11 +76,31 @@ trait ServicesMocker
         ;
 
         $entityManagerMock
-            ->expects($this->exactly(2))
+            ->expects($this->atLeastOnce())
             ->method('getRepository')
             ->willReturn($repositoryMock)
         ;
 
         return $entityManagerMock;
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|\Twig_Environment
+     */
+    public function mockTwigAddGlobal()
+    {
+        $mock = $this
+            ->getMockBuilder(\Twig_Environment::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['addGlobal'])
+            ->getMock()
+        ;
+
+        $mock
+            ->expects($this->exactly(2))
+            ->method('addGlobal')
+        ;
+
+        return $mock;
     }
 }
