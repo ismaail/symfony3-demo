@@ -52,7 +52,7 @@ trait ServicesMocker
         $repositoryMock = $this
             ->getMockBuilder(LanguageRepository::class)
             ->disableOriginalConstructor()
-            ->setMethods(['findDefault'])
+            ->setMethods(['findAll', 'findDefault'])
             ->getMock()
         ;
 
@@ -69,8 +69,14 @@ trait ServicesMocker
             ->willReturn($language)
         ;
 
-        $entityManagerMock
+        $repositoryMock
             ->expects($this->once())
+            ->method('findAll')
+            ->willReturn([$language])
+        ;
+
+        $entityManagerMock
+            ->expects($this->exactly(2))
             ->method('getRepository')
             ->willReturn($repositoryMock)
         ;
