@@ -1,7 +1,7 @@
 languages:
-    en: "English"
-    fr: "Français"
-    de: "Deutsch"
-    es: "Español"
-    ar: "العربية"
-    ru: "русский"
+    - { code: "en", name: "English", isDefault: true }
+    - { code: "fr", name: "Français", isDefault: false }
+    - { code: "de", name: "Deutsch", isDefault: false }
+    - { code: "es", name: "Español", isDefault: false }
+    - { code: "ar", name: "العربية", isDefault: false }
+    - { code: "ru", name: "русский", isDefault: false }

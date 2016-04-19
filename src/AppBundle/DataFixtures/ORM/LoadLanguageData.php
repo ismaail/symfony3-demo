@@ -46,11 +46,12 @@ class LoadLanguageData extends AbstractFixture implements OrderedFixtureInterfac
      */
     protected function createLanguages($list)
     {
-        foreach ($list as $code => $name) {
+        foreach ($list as $entry) {
             $language = new Language();
             $language
-                ->setCode($code)
-                ->setName($name)
+                ->setCode($entry['code'])
+                ->setName($entry['name'])
+                ->setIsDefault($entry['isDefault'])
             ;
 
             yield $language;
