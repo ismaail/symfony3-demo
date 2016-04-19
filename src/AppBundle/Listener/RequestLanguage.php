@@ -75,7 +75,7 @@ class RequestLanguage
         }
 
         if (! $this->isValidLocale($locale)) {
-            return ($request->getSession()->has('locale'))
+            $locale = ($request->getSession()->has('locale'))
                 ? $request->getSession()->get('locale')
                 : $this->getDefaultLanguage()->getCode()
             ;
