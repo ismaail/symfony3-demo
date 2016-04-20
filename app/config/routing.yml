@@ -6,3 +6,7 @@ app:
     resource: "@AppBundle/config/routing.yml"
     prefix: /{_locale}
     requirements: { _locale: "[a-z]{2}" }
+
+admin:
+    resource: "@AdminBundle/config/routing.yml"
+    prefix:   /admin

@@ -1,0 +1,14 @@
+admin.language:
+    path:     /
+    defaults: { _controller: AdminBundle:Language:index }
+    methods: [GET]
+
+admin.language.create:
+    path: /create
+    defaults: { _controller: AdminBundle:Language:create }
+    methods: [GET]
+
+admin.language.store:
+    path: /create
+    defaults: { _controller: AdminBundle:Language:store }
+    methods: [POST]
