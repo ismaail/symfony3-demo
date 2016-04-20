@@ -114,4 +114,63 @@ class LanguageRepositoryTest extends DoctrineTestCase
         $this->assertCount(1, $languages);
         $this->assertFalse($languages[0]->getIsDefault(), 'Language "isDefault" value is not "false"');
     }
+
+    /**
+     * @test
+     */
+    public function it_create_new_language()
+    {
+        $this->assertCount(0, $this->languageRepository->findAll(), 'Language Table has not 0 entries.');
+
+        $language = new Language();
+        $language
+            ->setCode('xy')
+            ->setName('X Y')
+        ;
+
+        $this->languageRepository->create($language);
+
+        $languages =$this->languageRepository->findAll();
+
+        $this->assertCount(1, $languages, 'Language Table has not 1 entry.');
+        $this->assertEquals('xy', $languages[0]->getCode());
+        $this->assertEquals('X Y', $languages[0]->getName());
+        $this->assertFalse($languages[0]->getIsDefault());
+    }
+
+    /**
+     * @test
+     */
+    public function it__create_new_language_and_set_it_as_new_default_language()
+    {
+        $this->createLanguage([
+            'code' => 'xx',
+            'name' => 'X X',
+            'isDefault' => true,
+        ]);
+
+        $this->assertCount(1, $this->languageRepository->findAll(), 'Language Table has not 0 entries.');
+
+        $language = new Language();
+        $language
+            ->setCode('xyz')
+            ->setName('X Y Z')
+            ->setIsDefault(true)
+        ;
+
+        $this->languageRepository->create($language);
+
+        $languages =$this->languageRepository->findAll();
+
+        $this->assertCount(2, $this->languageRepository->findAll(), 'Language Table has not 0 entries.');
+        // Assert old Language
+        $this->assertEquals('xx', $languages[0]->getCode());
+        $this->assertFalse($languages[0]->getIsDefault(), 'The Language is set to be the Default Language.');
+        // Assert the created default Language
+        $this->assertEquals('xyz', $languages[1]->getCode());
+        $this->assertTrue($languages[1]->getIsDefault(), 'The Language is not set to be the Default Language.');
+        // Assert Default Language
+        $defaultLanguage = $this->languageRepository->findDefault();
+        $this->assertEquals('xyz', $defaultLanguage->getCode(), 'Wrong Default Language');
+    }
 }
