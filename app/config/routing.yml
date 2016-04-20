@@ -5,3 +5,4 @@ base:
 app:
     resource: "@AppBundle/config/routing.yml"
     prefix: /{_locale}
+    requirements: { _locale: "[a-z]{2}" }
