@@ -1,0 +1,25 @@
+{% extends 'layout/admin.html.twig' %}
+{% block title %}Languages{% endblock %}
+{% block body %}
+    <h3 class="page-header">Create</h3>
+    {{ form_start(form, { attr:{class:'form_horizontal'} }) }}
+        <div class="form-group">
+            {{ form_label(form.code, null, { 'label_attr': {class: 'control-label'} }) }}
+            {{ form_widget(form.code,{ attr: {class: 'input-sm form-control'} }) }}
+            {% if form_errors(form.code) %}<div class="alert alert-danger">{{ form_errors(form.code) }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+            {{ form_label(form.name, null, { 'label_attr': {class: 'control-label'} }) }}
+            {{ form_widget(form.name,{ attr: {class: 'input-sm form-control'} }) }}
+            {% if form_errors(form.name) %}<div class="alert alert-danger">{{ form_errors(form.name) }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+            {{ form_label(form.isDefault, null, { 'label_attr': {class: 'control-label'} }) }}
+            {{ form_widget(form.isDefault,{ attr: {class: 'input-sm form-control'} }) }}
+            {% if form_errors(form.isDefault) %}<div class="alert alert-danger">{{ form_errors(form.isDefault) }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+            {{ form_widget(form.submit,{ attr: {class: 'input-sm form-control btn-primary'} }) }}
+        </div>
+    {{ form_end(form) }}
+{% endblock %}

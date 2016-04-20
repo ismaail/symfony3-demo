@@ -3,12 +3,16 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * language
  *
  * @ORM\Table(name="language")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\LanguageRepository")
+ *
+ * @UniqueEntity("code")
  */
 class Language
 {
@@ -25,6 +29,9 @@ class Language
      * @var string
      *
      * @ORM\Column(name="code", type="string", length=2, unique=true, options={"fixed":true})
+     *
+     * @Assert\NotBlank()
+     * @Assert\Length(min=2, max=2)
      */
     protected $code;
 
@@ -32,6 +39,8 @@ class Language
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=255)
+     *
+     * @Assert\NotBlank()
      */
     protected $name;
 

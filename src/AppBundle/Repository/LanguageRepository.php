@@ -31,4 +31,54 @@ class LanguageRepository extends EntityRepository
 
         return $qb->getQuery()->getSingleResult();
     }
+
+    /**
+     * @param Language $language
+     *
+     * @return Language
+     *
+     * @throws \Exception
+     */
+    public function create(Language $language)
+    {
+        $entityManager = $this->getEntityManager();
+
+        try {
+            $entityManager->beginTransaction();
+
+            $entityManager->persist($language);
+            $this->setDefaultLanguage($language);
+
+            $entityManager->flush();
+            $entityManager->commit();
+
+            return $language;
+
+        } catch (\Exception $e) {
+            $entityManager->rollback();
+
+            throw new \Exception("Error creating new Language.", 0, $e);
+        }
+    }
+
+    /**
+     * Set Default Language to false
+     *
+     * @param Language $language
+     */
+    protected function setDefaultLanguage(Language $language)
+    {
+        if (! $language->getIsDefault()) {
+            return;
+        }
+
+        $defaultLanguage = $this->findDefault();
+
+        // Same Language
+        if ($defaultLanguage->getId() === $language->getId()) {
+            return;
+        }
+
+        $defaultLanguage->setIsDefault(false);
+    }
 }
