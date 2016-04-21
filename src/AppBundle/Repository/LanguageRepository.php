@@ -118,11 +118,18 @@ class LanguageRepository extends EntityRepository
      */
     protected function setDefaultLanguage(Language $language)
     {
+        $defaultLanguage = $this->findDefault();
+
         if (! $language->getIsDefault()) {
+            // Prevents leaving default language empty.
+            if ($defaultLanguage->getId() === $language->getId()
+                && false === $defaultLanguage->getIsDefault()
+            ) {
+                $language->setIsDefault(true);
+            }
+
             return;
         }
-
-        $defaultLanguage = $this->findDefault();
 
         // Same Language
         if ($defaultLanguage->getId() === $language->getId()) {
