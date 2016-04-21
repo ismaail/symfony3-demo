@@ -2,8 +2,10 @@
 
 namespace AppBundle\Repository;
 
-use Doctrine\ORM\EntityRepository;
 use AppBundle\Entity\Language;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\NoResultException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Class LanguageRepository
@@ -18,7 +20,7 @@ class LanguageRepository extends EntityRepository
      *
      * @return Language
      *
-     * @throws \Doctrine\ORM\NoResultException          If not default language is found.
+     * @throws NoResultException          If not default language is found.
      * @throws \Doctrine\ORM\NonUniqueResultException   If more than one default language is found.
      */
     public function findDefault()
@@ -61,7 +63,7 @@ class LanguageRepository extends EntityRepository
      *
      * @return Language
      *
-     * @throws \Exception
+     * @throws LanguageRepositoryException
      */
     public function create(Language $language)
     {
@@ -71,6 +73,7 @@ class LanguageRepository extends EntityRepository
             $entityManager->beginTransaction();
 
             $entityManager->persist($language);
+
             $this->setDefaultLanguage($language);
 
             $entityManager->flush();
@@ -80,6 +83,7 @@ class LanguageRepository extends EntityRepository
 
         } catch (\Exception $e) {
             $entityManager->rollback();
+            throw new LanguageRepositoryException("Error creating new Language.", 0, $e);
         }
     }
 
@@ -104,7 +108,6 @@ class LanguageRepository extends EntityRepository
 
             return $language;
 
-            throw new \Exception("Error creating new Language.", 0, $e);
         } catch (\Exception $e) {
             $entityManager->rollback();
             throw new LanguageRepositoryException("Error updating the Language.", 0, $e);
