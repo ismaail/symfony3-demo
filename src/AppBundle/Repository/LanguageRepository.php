@@ -80,8 +80,34 @@ class LanguageRepository extends EntityRepository
 
         } catch (\Exception $e) {
             $entityManager->rollback();
+        }
+    }
+
+    /**
+     * @param Language $language
+     *
+     * @return Language
+     *
+     * @throws LanguageRepositoryException
+     */
+    public function update(Language $language)
+    {
+        $entityManager = $this->getEntityManager();
+
+        try {
+            $entityManager->beginTransaction();
+
+            $this->setDefaultLanguage($language);
+
+            $entityManager->flush();
+            $entityManager->commit();
+
+            return $language;
 
             throw new \Exception("Error creating new Language.", 0, $e);
+        } catch (\Exception $e) {
+            $entityManager->rollback();
+            throw new LanguageRepositoryException("Error updating the Language.", 0, $e);
         }
     }
 
