@@ -72,15 +72,39 @@ class LanguageController extends Controller
 
     /**
      * @param Language $language
+     * @param bool $isUpdate
      *
      * @return \Symfony\Component\Form\Form
      */
-    protected function createLanguageForm(Language $language = null)
+    protected function createLanguageForm(Language $language = null, $isUpdate = false)
     {
+        $options = $this->getLanguageFormOptions($isUpdate, $language);
+
         return $this->createForm(LanguageType::class, $language, [
-            'action' => $this->generateUrl('admin.language.store'),
-            'method' => 'POST',
+            'action' => $options['action'],
+            'method' => $options['method'],
         ]);
+    }
+
+    /**
+     * @param bool $isUpdate
+     * @param Language $language
+     *
+     * @return array
+     */
+    protected function getLanguageFormOptions($isUpdate = false, Language $language = null)
+    {
+        $options = [];
+
+        $options['action'] = $isUpdate
+            ? $this->generateUrl('admin.language.update', ['id' => $language->getId()])
+            : $this->generateUrl('admin.language.store');
+
+        $options['method'] = $isUpdate
+            ? 'PUT'
+            : 'POST';
+
+        return $options;
     }
 
     /**
