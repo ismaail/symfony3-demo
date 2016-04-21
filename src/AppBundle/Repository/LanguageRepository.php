@@ -33,6 +33,30 @@ class LanguageRepository extends EntityRepository
     }
 
     /**
+     * @param $id
+     *
+     * @return Language
+     *
+     * @throws NotFoundHttpException        If Language is not found.
+     */
+    public function findOrFail($id)
+    {
+        try {
+            $qb = $this->createQueryBuilder('l');
+            $qb
+                ->select('l')
+                ->where('l.id = :id')
+                ->setParameter('id', $id)
+            ;
+
+            return $qb->getQuery()->getSingleResult();
+
+        } catch (NoResultException $e) {
+            throw new NotFoundHttpException('Language not found', $e);
+        }
+    }
+
+    /**
      * @param Language $language
      *
      * @return Language
