@@ -2,6 +2,7 @@
 
 namespace Tests\AppBundle\Repository;
 
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use AppBundle\Entity\Language;
@@ -122,6 +123,15 @@ class LanguageRepositoryTest extends DoctrineTestCase
     {
         $this->assertCount(0, $this->languageRepository->findAll(), 'Language Table has not 0 entries.');
 
+        // Create default language
+        $this->createLanguage([
+            'code' => 'en',
+            'name' => 'English',
+            'isDefault' => true,
+        ]);
+
+        $this->assertCount(1, $this->languageRepository->findAll(), 'Language Table has not 1 entry.');
+
         $language = new Language();
         $language
             ->setCode('xy')
@@ -132,20 +142,20 @@ class LanguageRepositoryTest extends DoctrineTestCase
 
         $languages =$this->languageRepository->findAll();
 
-        $this->assertCount(1, $languages, 'Language Table has not 1 entry.');
-        $this->assertEquals('xy', $languages[0]->getCode());
-        $this->assertEquals('X Y', $languages[0]->getName());
-        $this->assertFalse($languages[0]->getIsDefault());
+        $this->assertCount(2, $languages, 'Language Table has not 2 entries.');
+        $this->assertEquals('xy', $languages[1]->getCode());
+        $this->assertEquals('X Y', $languages[1]->getName());
+        $this->assertFalse($languages[1]->getIsDefault());
     }
 
     /**
      * @test
      */
-    public function it__create_new_language_and_set_it_as_new_default_language()
+    public function it_create_new_language_and_set_it_as_new_default_language()
     {
         $this->createLanguage([
-            'code' => 'xx',
-            'name' => 'X X',
+            'code' => 'en',
+            'name' => 'English',
             'isDefault' => true,
         ]);
 
@@ -158,19 +168,117 @@ class LanguageRepositoryTest extends DoctrineTestCase
             ->setIsDefault(true)
         ;
 
+        // Repository creates the new Language.
         $this->languageRepository->create($language);
 
         $languages =$this->languageRepository->findAll();
 
         $this->assertCount(2, $this->languageRepository->findAll(), 'Language Table has not 0 entries.');
+
         // Assert old Language
-        $this->assertEquals('xx', $languages[0]->getCode());
+        $this->assertEquals('en', $languages[0]->getCode());
         $this->assertFalse($languages[0]->getIsDefault(), 'The Language is set to be the Default Language.');
+
         // Assert the created default Language
         $this->assertEquals('xyz', $languages[1]->getCode());
         $this->assertTrue($languages[1]->getIsDefault(), 'The Language is not set to be the Default Language.');
+
         // Assert Default Language
         $defaultLanguage = $this->languageRepository->findDefault();
         $this->assertEquals('xyz', $defaultLanguage->getCode(), 'Wrong Default Language');
+    }
+
+    /**
+     * @test
+     */
+    public function it_throws_exception_if_language_is_not_found()
+    {
+        $this->expectException(NotFoundHttpException::class);
+        $this->expectExceptionMessage('Language not found');
+
+        $this->languageRepository->findOrFail(0);
+    }
+
+    /**
+     * @test
+     */
+    public function it_updates_language()
+    {
+        // Create Default Language
+        $this->createLanguage([
+            'code' => 'en',
+            'name' => 'English',
+            'isDefault' => true,
+        ]);
+
+        // Create Language to update
+        $this->createLanguage([
+            'code' => 'xx',
+            'name' => 'X X',
+            'isDefault' => false,
+        ]);
+
+        $this->assertCount(2, $this->languageRepository->findAll(), 'Language Table has not 2 entries');
+
+        $language = $this->languageRepository->findOrFail(2);
+
+        $this->assertEquals('xx', $language->getCode());
+        $this->assertEquals('X X', $language->getName());
+        $this->assertFalse($language->getIsDefault(), '"xx" Language is Default');
+
+        // Update the Language
+        $language
+            ->setCode('yy')
+            ->setName('Y Y')
+            ->setIsDefault(true)
+        ;
+        $this->languageRepository->update($language);
+
+        $updatedLanguage = $this->languageRepository->findOrFail(2);
+
+        // Assert the updates
+        $this->assertEquals('yy', $updatedLanguage->getCode());
+        $this->assertEquals('Y Y', $language->getName());
+        $this->assertTrue($language->getIsDefault(), '"yy" Language is not Default');
+
+        // Assert old DefaultLanguage
+        $oldDefault = $this->languageRepository->findOrFail(1);
+        $this->assertEquals('en', $oldDefault->getCode());
+        $this->assertFalse($oldDefault->getIsDefault(), '"en" Language is Default');
+
+        $newDefault = $this->languageRepository->findDefault();
+        $this->assertEquals('yy', $newDefault->getCode(), '"yy" Language is not Default');
+    }
+
+    /**
+     * @test
+     */
+    public function it_keeps_default_language_default()
+    {
+        $this->createLanguage([
+            'code' => 'en',
+            'name' => 'English',
+            'isDefault' => true,
+        ]);
+
+        $defaultLanguage = $this->languageRepository->findDefault();
+
+        $this->assertEquals('en', $defaultLanguage->getCode());
+
+        $language = $this->languageRepository->findOrFail(1);
+        // Update the Language
+        $language
+            ->setCode('fr')
+            ->setName('Français')
+            ->setIsDefault(false)
+        ;
+        $this->languageRepository->update($language);
+
+        $updatedLanguage = $this->languageRepository->findOrFail(1);
+
+        // Assert update Language
+        $this->assertEquals('fr', $updatedLanguage->getCode());
+        $this->assertEquals('Français', $updatedLanguage->getName());
+        $this->assertTrue($updatedLanguage->getIsDefault(), '"fr" Language is not Default.');
     }
 }
