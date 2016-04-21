@@ -2,10 +2,10 @@
 
 namespace AdminBundle\Controller;
 
-use AppBundle\Entity\Language;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use AdminBundle\Form\LanguageType;
+use AppBundle\Entity\Language;
 
 /**
  * Class LanguageController
@@ -66,6 +66,48 @@ class LanguageController extends Controller
         }
 
         return $this->render('admin/create.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @param $id
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function editAction($id)
+    {
+        $language = $this->getLanguageRepository()->findOrFail($id);
+
+        $form = $this->createLanguageForm($language, true)->createView();
+
+        return $this->render('admin/edit.html.twig', compact('language', 'form'));
+    }
+
+    /**
+     * @param int $id
+     * @param Request $request
+     *
+     * @return \\Symfony\Component\HttpFoundation\Response
+     *
+     * @throws \AppBundle\Repository\LanguageRepositoryException
+     */
+    public function updateAction($id, Request $request)
+    {
+        $language = $this->getLanguageRepository()->findOrFail($id);
+        $form = $this->createLanguageForm($language, true);
+
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            $this->getLanguageRepository()->update($language);
+            $this->get('session')->getFlashBag()->add('success', 'Language successfully updated.');
+
+            return $this->redirectToRoute('admin.language');
+        }
+
+        return $this->render('admin/edit.html.twig', [
+            'language' => $language,
             'form' => $form->createView(),
         ]);
     }
