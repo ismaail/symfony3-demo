@@ -2,8 +2,10 @@
 
 namespace AppBundle\Repository;
 
-use Doctrine\ORM\EntityRepository;
 use AppBundle\Entity\Language;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\NoResultException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Class LanguageRepository
@@ -18,7 +20,7 @@ class LanguageRepository extends EntityRepository
      *
      * @return Language
      *
-     * @throws \Doctrine\ORM\NoResultException          If not default language is found.
+     * @throws NoResultException          If not default language is found.
      * @throws \Doctrine\ORM\NonUniqueResultException   If more than one default language is found.
      */
     public function findDefault()
@@ -33,11 +35,35 @@ class LanguageRepository extends EntityRepository
     }
 
     /**
+     * @param $id
+     *
+     * @return Language
+     *
+     * @throws NotFoundHttpException        If Language is not found.
+     */
+    public function findOrFail($id)
+    {
+        try {
+            $qb = $this->createQueryBuilder('l');
+            $qb
+                ->select('l')
+                ->where('l.id = :id')
+                ->setParameter('id', $id)
+            ;
+
+            return $qb->getQuery()->getSingleResult();
+
+        } catch (NoResultException $e) {
+            throw new NotFoundHttpException('Language not found', $e);
+        }
+    }
+
+    /**
      * @param Language $language
      *
      * @return Language
      *
-     * @throws \Exception
+     * @throws LanguageRepositoryException
      */
     public function create(Language $language)
     {
@@ -47,6 +73,7 @@ class LanguageRepository extends EntityRepository
             $entityManager->beginTransaction();
 
             $entityManager->persist($language);
+
             $this->setDefaultLanguage($language);
 
             $entityManager->flush();
@@ -56,8 +83,34 @@ class LanguageRepository extends EntityRepository
 
         } catch (\Exception $e) {
             $entityManager->rollback();
+            throw new LanguageRepositoryException("Error creating new Language.", 0, $e);
+        }
+    }
 
-            throw new \Exception("Error creating new Language.", 0, $e);
+    /**
+     * @param Language $language
+     *
+     * @return Language
+     *
+     * @throws LanguageRepositoryException
+     */
+    public function update(Language $language)
+    {
+        $entityManager = $this->getEntityManager();
+
+        try {
+            $entityManager->beginTransaction();
+
+            $this->setDefaultLanguage($language);
+
+            $entityManager->flush();
+            $entityManager->commit();
+
+            return $language;
+
+        } catch (\Exception $e) {
+            $entityManager->rollback();
+            throw new LanguageRepositoryException("Error updating the Language.", 0, $e);
         }
     }
 
@@ -68,11 +121,18 @@ class LanguageRepository extends EntityRepository
      */
     protected function setDefaultLanguage(Language $language)
     {
+        $defaultLanguage = $this->findDefault();
+
         if (! $language->getIsDefault()) {
+            // Prevents leaving default language empty.
+            if ($defaultLanguage->getId() === $language->getId()
+                && false === $defaultLanguage->getIsDefault()
+            ) {
+                $language->setIsDefault(true);
+            }
+
             return;
         }
-
-        $defaultLanguage = $this->findDefault();
 
         // Same Language
         if ($defaultLanguage->getId() === $language->getId()) {

@@ -2,10 +2,10 @@
 
 namespace AdminBundle\Controller;
 
-use AppBundle\Entity\Language;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use AdminBundle\Form\LanguageType;
+use AppBundle\Entity\Language;
 
 /**
  * Class LanguageController
@@ -71,16 +71,82 @@ class LanguageController extends Controller
     }
 
     /**
+     * @param $id
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function editAction($id)
+    {
+        $language = $this->getLanguageRepository()->findOrFail($id);
+
+        $form = $this->createLanguageForm($language, true)->createView();
+
+        return $this->render('admin/edit.html.twig', compact('language', 'form'));
+    }
+
+    /**
+     * @param int $id
+     * @param Request $request
+     *
+     * @return \\Symfony\Component\HttpFoundation\Response
+     *
+     * @throws \AppBundle\Repository\LanguageRepositoryException
+     */
+    public function updateAction($id, Request $request)
+    {
+        $language = $this->getLanguageRepository()->findOrFail($id);
+        $form = $this->createLanguageForm($language, true);
+
+        $form->handleRequest($request);
+
+        if ($form->isValid()) {
+            $this->getLanguageRepository()->update($language);
+            $this->get('session')->getFlashBag()->add('success', 'Language successfully updated.');
+
+            return $this->redirectToRoute('admin.language');
+        }
+
+        return $this->render('admin/edit.html.twig', [
+            'language' => $language,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
      * @param Language $language
+     * @param bool $isUpdate
      *
      * @return \Symfony\Component\Form\Form
      */
-    protected function createLanguageForm(Language $language = null)
+    protected function createLanguageForm(Language $language = null, $isUpdate = false)
     {
+        $options = $this->getLanguageFormOptions($isUpdate, $language);
+
         return $this->createForm(LanguageType::class, $language, [
-            'action' => $this->generateUrl('admin.language.store'),
-            'method' => 'POST',
+            'action' => $options['action'],
+            'method' => $options['method'],
         ]);
+    }
+
+    /**
+     * @param bool $isUpdate
+     * @param Language $language
+     *
+     * @return array
+     */
+    protected function getLanguageFormOptions($isUpdate = false, Language $language = null)
+    {
+        $options = [];
+
+        $options['action'] = $isUpdate
+            ? $this->generateUrl('admin.language.update', ['id' => $language->getId()])
+            : $this->generateUrl('admin.language.store');
+
+        $options['method'] = $isUpdate
+            ? 'PUT'
+            : 'POST';
+
+        return $options;
     }
 
     /**

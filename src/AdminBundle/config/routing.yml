@@ -12,3 +12,15 @@ admin.language.store:
     path: /create
     defaults: { _controller: AdminBundle:Language:store }
     methods: [POST]
+
+admin.language.edit:
+    path: /{id}/edit
+    defaults: { _controller: AdminBundle:Language:edit }
+    methods: [GET]
+    requirements: { id: "[0-9]+" }
+
+admin.language.update:
+    path: /{id}/edit
+    defaults: { _controller: AdminBundle:Language:update }
+    methods: [PUT]
+    requirements: { id: "[0-9]+" }
