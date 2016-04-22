@@ -20,7 +20,9 @@
                 <td>{{ language.name }} {%  if language.isDefault %}<em><strong>(default)</strong></em>{%  endif %}</td>
                 <td>
                     <a href="{{ path('admin.language.edit', {'id': language.id}) }}" class="btn btn-primary">Edit</a>
-                    <a href="#" class="btn btn-danger">Delete</a>
+                    {% if not language.isDefault %}
+                    <a href="{{ path('admin.language.delete', {id: language.id}) }}" data-token="{{ csrf_token('form') }}" class="btn btn-danger btn-delete-confirm">Delete</a>
+                    {% endif %}
                 </td>
             </tr>
         {% endfor %}
