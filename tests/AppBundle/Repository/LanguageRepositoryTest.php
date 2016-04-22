@@ -3,6 +3,7 @@
 namespace Tests\AppBundle\Repository;
 
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use AppBundle\Repository\LanguageRepositoryException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use AppBundle\Entity\Language;
@@ -280,5 +281,59 @@ class LanguageRepositoryTest extends DoctrineTestCase
         $this->assertEquals('fr', $updatedLanguage->getCode());
         $this->assertEquals('Français', $updatedLanguage->getName());
         $this->assertTrue($updatedLanguage->getIsDefault(), '"fr" Language is not Default.');
+    }
+
+    /**
+     * @test
+     */
+    public function it_trows_exception_if_deleting_the_default_language()
+    {
+        $this->createLanguage([
+            'code' => 'en',
+            'name' => 'English',
+            'isDefault' => true,
+        ]);
+
+        $this->assertCount(1, $this->languageRepository->findAll());
+
+        $this->expectException(LanguageRepositoryException::class);
+        $this->expectExceptionMessage('Cannot delete the Default Language');
+
+        $language = $this->languageRepository->findDefault();
+
+        $this->languageRepository->delete($language);
+    }
+
+    /**
+     * @test
+     */
+    public function it_deletes_language()
+    {
+        $this->createLanguage([
+            'code' => 'en',
+            'name' => 'English',
+            'isDefault' => true,
+        ]);
+
+        $this->createLanguage([
+            'code' => 'fr',
+            'name' => 'Français',
+            'isDefault' => false,
+        ]);
+
+        // Assert the number items in Language table.
+        $this->assertCount(2, $this->languageRepository->findAll());
+
+        // Get the Non-Default Language.
+        $language = $this->languageRepository->findOrFail(2);
+        $this->languageRepository->delete($language);
+
+        // Assert the number items in Language table.
+        $this->assertCount(1, $this->languageRepository->findAll());
+
+        // Assert 'fr' Language cannot be found.
+        $this->expectException(NotFoundHttpException::class);
+
+        $this->languageRepository->findOrFail(2);
     }
 }

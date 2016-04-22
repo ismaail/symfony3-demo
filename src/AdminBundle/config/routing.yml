@@ -24,3 +24,9 @@ admin.language.update:
     defaults: { _controller: AdminBundle:Language:update }
     methods: [PUT]
     requirements: { id: "[0-9]+" }
+
+admin.language.delete:
+    path: /{id}/delete
+    defaults: { _controller: AdminBundle:Language:delete }
+    methods: [DELETE]
+    requirements: { id: "[0-9]+" }
