@@ -115,6 +115,31 @@ class LanguageRepository extends EntityRepository
     }
 
     /**
+     * @param Language $language
+     *
+     * @throws LanguageRepositoryException
+     */
+    public function delete(Language $language)
+    {
+        if ($language->getId() === $this->findDefault()->getId()) {
+            throw new LanguageRepositoryException("Cannot delete the Default Language.");
+        }
+
+        try {
+            $this->getEntityManager()->beginTransaction();
+
+            $this->getEntityManager()->remove($language);
+
+            $this->getEntityManager()->flush();
+            $this->getEntityManager()->commit();
+
+        } catch (\Exception $e) {
+            $this->getEntityManager()->rollback();
+            throw new LanguageRepositoryException("Error deleting the Language", 0, $e);
+        }
+    }
+
+    /**
      * Set Default Language to false
      *
      * @param Language $language
