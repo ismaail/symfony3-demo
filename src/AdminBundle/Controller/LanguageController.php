@@ -129,6 +129,22 @@ class LanguageController extends Controller
     }
 
     /**
+     * @param int $id
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function deleteAction($id)
+    {
+        $language = $this->getLanguageRepository()->findOrFail($id);
+
+        $this->getLanguageRepository()->delete($language);
+
+        $this->get('session')->getFlashBag()->add('success', 'Language deleted successfully');
+
+        return $this->redirectToRoute('admin.language');
+    }
+
+    /**
      * @param bool $isUpdate
      * @param Language $language
      *
