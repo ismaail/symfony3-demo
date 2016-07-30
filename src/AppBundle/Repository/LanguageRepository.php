@@ -20,8 +20,8 @@ class LanguageRepository extends EntityRepository
      *
      * @return Language
      *
-     * @throws NoResultException          If not default language is found.
-     * @throws \Doctrine\ORM\NonUniqueResultException   If more than one default language is found.
+     * @throws NoResultException                            If not default language is found.
+     * @throws \Doctrine\ORM\NonUniqueResultException       If more than one default language is found.
      */
     public function findDefault()
     {
