@@ -31,7 +31,7 @@ class DefaultControllerTest extends WebTestCase
     /**
      * @test
      */
-    public function it_says_welcome_for_home_page()
+    public function it_says_welcome_in_english_for_home_page()
     {
         $requestMock = $this->mockLanguageListenerService(['onKernelRequest']);
 
@@ -45,6 +45,25 @@ class DefaultControllerTest extends WebTestCase
 
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
         $this->assertContains('welcome', $crawler->filter('h1')->text());
+    }
+
+    /**
+     * @test
+     */
+    public function it_says_welcome_in_french_for_home_page()
+    {
+        $requestMock = $this->mockLanguageListenerService(['onKernelRequest']);
+
+        $requestMock
+            ->expects($this->atLeastOnce())
+            ->method('onKernelRequest')
+            ->willReturn([])
+        ;
+
+        $crawler = $this->client->request('GET', '/fr/');
+
+        $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
+        $this->assertContains('bienvenue', $crawler->filter('h1')->text());
     }
 
     /**
