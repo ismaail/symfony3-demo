@@ -15,7 +15,9 @@ composer install
 Database
 --------------
 
-Create a sqlite database file **"var/data.db3"**:
+Create an empty file **"var/data.db3"**:
+
+Run migration to create tables
 
 ```
 php bin/console doctrine:migrations:migrate
