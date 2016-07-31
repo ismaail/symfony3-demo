@@ -11,7 +11,7 @@
 </div>
 <div class="form-group">
     {{ form_label(form.isDefault, null, { 'label_attr': {class: 'control-label'} }) }}
-    {{ form_widget(form.isDefault,{ attr: {class: 'input-sm form-control'} }) }}
+    {{ form_widget(form.isDefault) }}
     {% if form_errors(form.isDefault) %}<div class="alert alert-danger">{{ form_errors(form.isDefault) }}</div>{% endif %}
 </div>
 <div class="form-group">
